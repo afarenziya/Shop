@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, Home } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ProductCard from "@/components/ProductCard";
+import Footer from "@/components/Footer";
 import type { Product } from "@shared/schema";
 
 export default function Products() {
@@ -60,6 +61,12 @@ export default function Products() {
               <h1 className="text-2xl font-bold text-primary">AffiliateHub</h1>
             </div>
             <div className="flex items-center space-x-4">
+              <Link to="/home">
+                <Button variant="ghost" data-testid="nav-home">
+                  <Home className="h-4 w-4 mr-2" />
+                  Home
+                </Button>
+              </Link>
               <Link to="/add-product">
                 <Button className="bg-primary text-primary-foreground hover:bg-primary/90" data-testid="button-add-product">
                   <Plus className="h-4 w-4 mr-2" />
@@ -194,6 +201,8 @@ export default function Products() {
           </div>
         )}
       </div>
+      
+      <Footer />
     </div>
   );
 }

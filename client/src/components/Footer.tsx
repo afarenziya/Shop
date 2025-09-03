@@ -1,6 +1,12 @@
+import { Link } from "wouter";
+
 export default function Footer() {
-  const quickLinks = ["Home", "Products", "Add Product", "Analytics", "Help"];
-  const supportLinks = ["Documentation", "API Reference", "Contact Us", "Privacy Policy", "Terms of Service"];
+  const quickLinks = [
+    { name: "Home", href: "/home" },
+    { name: "Products", href: "/" },
+    { name: "Add Product", href: "/add-product" }
+  ];
+  const supportLinks = ["Contact Us", "Privacy Policy", "Terms of Service", "Help & Support"];
   const socialLinks = [
     { icon: "fab fa-twitter", href: "#" },
     { icon: "fab fa-facebook", href: "#" },
@@ -18,8 +24,8 @@ export default function Footer() {
               <h4 className="text-2xl font-bold">AffiliateHub</h4>
             </div>
             <p className="text-background/80 mb-4 max-w-md">
-              The easiest way to create beautiful affiliate product showcases from Amazon and Flipkart links. 
-              Start earning more with better product presentations.
+              Professional affiliate marketing platform by Ajay Farenziya. 
+              Create beautiful product showcases from Amazon and Flipkart with smart categorization.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social, index) => (
@@ -40,13 +46,13 @@ export default function Footer() {
             <ul className="space-y-2 text-background/80">
               {quickLinks.map((link, index) => (
                 <li key={index}>
-                  <a 
-                    href="#" 
+                  <Link 
+                    to={link.href} 
                     className="hover:text-primary transition-colors"
                     data-testid={`link-quick-${index}`}
                   >
-                    {link}
-                  </a>
+                    {link.name}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -71,7 +77,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-background/20 mt-8 pt-8 text-center text-background/60">
-          <p>&copy; 2024 AffiliateHub. All rights reserved. Built with ❤️ for affiliate marketers.</p>
+          <p>&copy; 2024 AffiliateHub by Ajay Farenziya. All rights reserved. Built with ❤️ for affiliate marketers worldwide.</p>
         </div>
       </div>
     </footer>

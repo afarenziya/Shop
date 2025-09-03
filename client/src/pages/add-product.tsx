@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, Home } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { addProductUrlSchema, type AddProductUrl } from "@shared/schema";
+import Footer from "@/components/Footer";
 
 export default function AddProduct() {
   const { toast } = useToast();
@@ -69,6 +70,14 @@ export default function AddProduct() {
                 <i className="fas fa-plus text-primary text-xl"></i>
                 <h1 className="text-xl font-bold text-primary">Add Product</h1>
               </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link to="/home">
+                <Button variant="ghost" data-testid="nav-home">
+                  <Home className="h-4 w-4 mr-2" />
+                  Home
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -178,6 +187,8 @@ export default function AddProduct() {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }
