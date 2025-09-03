@@ -1,13 +1,13 @@
 export default function FeaturesSection() {
   const features = [
     {
-      icon: "fas fa-magic",
+      icon: "fas fa-wand-magic-sparkles",
       color: "bg-primary/10 text-primary",
       title: "Auto Product Fetch",
       description: "Simply paste any Amazon or Flipkart product URL and get all details automatically extracted including images, prices, and descriptions."
     },
     {
-      icon: "fas fa-mobile-alt",
+      icon: "fas fa-mobile-screen",
       color: "bg-accent/10 text-accent",
       title: "Mobile Responsive",
       description: "Your affiliate site looks perfect on all devices. Optimized for mobile, tablet, and desktop viewing experiences."
@@ -19,13 +19,13 @@ export default function FeaturesSection() {
       description: "Monitor clicks, conversions, and earnings with built-in analytics. Optimize your affiliate marketing strategy with data."
     },
     {
-      icon: "fas fa-shield-alt",
+      icon: "fas fa-shield",
       color: "bg-purple-500/10 text-purple-500",
       title: "Secure & Reliable",
       description: "Enterprise-grade security with reliable uptime. Your affiliate links and data are always protected and accessible."
     },
     {
-      icon: "fas fa-lightning-bolt",
+      icon: "fas fa-bolt-lightning",
       color: "bg-blue-500/10 text-blue-500",
       title: "Lightning Fast",
       description: "Optimized for speed with instant product fetching and fast loading times. Better user experience means higher conversions."
