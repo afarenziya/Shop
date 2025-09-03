@@ -49,8 +49,8 @@ export default function FeaturesSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <div key={index} className="text-center p-6" data-testid={`feature-${index}`}>
-              <div className={`${feature.color.replace('text-', 'bg-').replace('/10', '/10')} w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4`}>
-                <i className={`${feature.icon} ${feature.color.split(' ')[1]} text-2xl`}></i>
+              <div className={`${feature.color} w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4`}>
+                <i className={`${feature.icon} text-2xl`}></i>
               </div>
               <h4 className="text-xl font-semibold mb-3">{feature.title}</h4>
               <p className="text-muted-foreground">{feature.description}</p>
