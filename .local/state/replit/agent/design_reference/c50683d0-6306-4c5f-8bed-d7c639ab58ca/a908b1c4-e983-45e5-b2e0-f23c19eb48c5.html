@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AffiliateHub - Amazon & Flipkart Product Aggregator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    popover: {
+                        DEFAULT: "var(--popover)",
+                        foreground: "var(--popover-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    destructive: {
+                        DEFAULT: "var(--destructive)",
+                        foreground: "var(--destructive-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                }
+            }
+        }
+    };
+    </script>
+    <style>
+        :root {
+            --background: hsl(210 40% 98%);
+            --foreground: hsl(222 84% 4.9%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(222 84% 4.9%);
+            --popover: hsl(0 0% 100%);
+            --popover-foreground: hsl(222 84% 4.9%);
+            --primary: hsl(221 83% 53%);
+            --primary-foreground: hsl(210 40% 98%);
+            --secondary: hsl(210 40% 96%);
+            --secondary-foreground: hsl(222 84% 4.9%);
+            --muted: hsl(210 40% 96%);
+            --muted-foreground: hsl(215 16% 46.9%);
+            --accent: hsl(36 100% 66%);
+            --accent-foreground: hsl(222 84% 4.9%);
+            --destructive: hsl(0 84% 60%);
+            --destructive-foreground: hsl(210 40% 98%);
+            --border: hsl(214 32% 91%);
+            --input: hsl(214 32% 91%);
+            --ring: hsl(221 83% 53%);
+            --radius: 0.75rem;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        
+        .product-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .loading-skeleton {
+            background: linear-gradient(90deg, hsl(210 40% 94%) 25%, hsl(210 40% 98%) 50%, hsl(210 40% 94%) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .price-tag {
+            background: linear-gradient(135deg, hsl(120 70% 95%) 0%, hsl(120 60% 90%) 100%);
+        }
+        
+        .discount-badge {
+            background: linear-gradient(135deg, hsl(0 85% 60%) 0%, hsl(0 75% 55%) 100%);
+        }
+    </style>
+</head>
+<body class="bg-background text-foreground">
+    <!-- @COMPONENT: Header -->
+    <header class="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/80">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-link text-primary text-2xl"></i>
+                        <h1 class="text-2xl font-bold text-primary">AffiliateHub</h1>
+                    </div>
+                    <nav class="hidden md:flex space-x-6">
+                        <a href="#home" class="text-muted-foreground hover:text-primary transition-colors">Home</a>
+                        <a href="#products" class="text-muted-foreground hover:text-primary transition-colors">Products</a>
+                        <a href="#add-product" class="text-muted-foreground hover:text-primary transition-colors">Add Product</a>
+                        <a href="#about" class="text-muted-foreground hover:text-primary transition-colors">About</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors font-medium">
+                        <i class="fas fa-plus mr-2"></i>Add Product
+                    </button>
+                    <button class="md:hidden text-muted-foreground">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <!-- @COMPONENT: Hero Section -->
+    <section id="home" class="bg-gradient-to-br from-primary/5 to-accent/5 py-16">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    Simplify Your Affiliate Marketing
+                </h2>
+                <p class="text-xl text-muted-foreground mb-8 leading-relaxed">
+                    Paste Amazon or Flipkart product links and automatically fetch detailed product information. 
+                    Create beautiful product showcases with titles, descriptions, images, prices, and direct purchase links.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="bg-primary text-primary-foreground px-8 py-4 rounded-lg hover:bg-primary/90 transition-colors font-semibold text-lg">
+                        <i class="fas fa-rocket mr-2"></i>Get Started Now
+                    </button>
+                    <button class="border border-border bg-card text-card-foreground px-8 py-4 rounded-lg hover:bg-secondary transition-colors font-semibold text-lg">
+                        <i class="fas fa-play mr-2"></i>Watch Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Hero Section -->
+
+    <!-- @COMPONENT: Add Product Section -->
+    <section id="add-product" class="py-16 bg-card">
+        <div class="container mx-auto px-4">
+            <div class="max-w-2xl mx-auto">
+                <h3 class="text-3xl font-bold text-center mb-8">Add New Product</h3>
+                <div class="bg-background border border-border rounded-xl p-8 shadow-lg">
+                    <form class="space-y-6">
+                        <!-- @STATE: isLoading:boolean = false -->
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium text-foreground">Product Link</label>
+                            <div class="relative">
+                                <input 
+                                    type="url" 
+                                    placeholder="Paste Amazon or Flipkart product URL here..."
+                                    class="w-full px-4 py-3 bg-card border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-ring outline-none transition-all"
+                                    data-bind="productUrl"
+                                    data-mock="true"
+                                />
+                                <i class="fas fa-link absolute right-3 top-3.5 text-muted-foreground"></i>
+                            </div>
+                            <p class="text-xs text-muted-foreground">
+                                Supported: Amazon.in, Amazon.com, Flipkart.com product pages
+                            </p>
+                        </div>
+                        
+                        <div class="flex gap-4">
+                            <button 
+                                type="submit" 
+                                class="flex-1 bg-primary text-primary-foreground py-3 rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                                data-event="click:handleFetchProduct"
+                                data-implementation="Should validate URL and fetch product data"
+                            >
+                                <i class="fas fa-download mr-2"></i>Fetch Product Details
+                            </button>
+                            <button 
+                                type="button" 
+                                class="px-6 bg-secondary text-secondary-foreground py-3 rounded-lg hover:bg-secondary/80 transition-colors"
+                                data-event="click:handleClear"
+                            >
+                                <i class="fas fa-trash mr-2"></i>Clear
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Loading State -->
+                    <div class="mt-8 hidden" data-state="loading">
+                        <div class="flex items-center justify-center space-x-3 text-muted-foreground">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span>Fetching product details...</span>
+                        </div>
+                        <div class="mt-4 space-y-4">
+                            <div class="loading-skeleton h-4 rounded w-3/4"></div>
+                            <div class="loading-skeleton h-20 rounded"></div>
+                            <div class="loading-skeleton h-4 rounded w-1/2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Add Product Section -->
+
+    <!-- @COMPONENT: Products Grid -->
+    <section id="products" class="py-16 bg-background">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold mb-4">Featured Products</h3>
+                <p class="text-lg text-muted-foreground">Discover amazing deals from Amazon and Flipkart</p>
+            </div>
+            
+            <!-- Filter and Sort Options -->
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+                <div class="flex gap-2">
+                    <button class="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">All</button>
+                    <button class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium hover:bg-secondary/80">Amazon</button>
+                    <button class="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium hover:bg-secondary/80">Flipkart</button>
+                </div>
+                <select class="px-4 py-2 bg-card border border-input rounded-lg text-sm">
+                    <option>Sort by Price</option>
+                    <option>Price: Low to High</option>
+                    <option>Price: High to Low</option>
+                    <option>Discount: High to Low</option>
+                </select>
+            </div>
+
+            <!-- Products Grid -->
+            <!-- @MAP: products.map(product => ( -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                
+                <!-- Product Card 1 - Amazon -->
+                <div class="product-card bg-card border border-border rounded-xl overflow-hidden shadow-sm" data-mock="true">
+                    <!-- Sony WH-1000XM4 noise cancelling headphones in black -->
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="Sony WH-1000XM4 Headphones" class="w-full h-48 object-cover" />
+                        <div class="absolute top-3 right-3">
+                            <span class="discount-badge text-white px-2 py-1 rounded-md text-xs font-bold">25% OFF</span>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-accent text-accent-foreground px-2 py-1 rounded-md text-xs font-bold">Amazon</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold text-lg mb-2 line-clamp-2" data-bind="product.title">Sony WH-1000XM4 Wireless Noise Cancelling Headphones</h4>
+                        <p class="text-muted-foreground text-sm mb-3 line-clamp-2" data-bind="product.description">Industry-leading noise canceling with Dual Noise Sensor technology. 30-hour battery life with quick charge.</p>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="price-tag px-3 py-1 rounded-lg">
+                                <span class="text-lg font-bold text-green-700" data-bind="product.salePrice">₹22,499</span>
+                                <span class="text-sm text-muted-foreground line-through ml-2" data-bind="product.originalPrice">₹29,999</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="#" class="flex-1 bg-accent text-accent-foreground py-2 px-4 rounded-lg text-center text-sm font-medium hover:bg-accent/90 transition-colors" data-implementation="Should open Amazon product page">
+                                <i class="fab fa-amazon mr-1"></i>View on Amazon
+                            </a>
+                            <button class="p-2 border border-border rounded-lg hover:bg-secondary transition-colors" data-event="click:handleRemoveProduct">
+                                <i class="fas fa-trash text-destructive"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 2 - Flipkart -->
+                <div class="product-card bg-card border border-border rounded-xl overflow-hidden shadow-sm" data-mock="true">
+                    <!-- iPhone 14 Pro in deep purple color showing the camera module -->
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1678652197831-2d180705cd2c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="iPhone 14 Pro" class="w-full h-48 object-cover" />
+                        <div class="absolute top-3 right-3">
+                            <span class="discount-badge text-white px-2 py-1 rounded-md text-xs font-bold">15% OFF</span>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-blue-500 text-white px-2 py-1 rounded-md text-xs font-bold">Flipkart</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold text-lg mb-2 line-clamp-2" data-bind="product.title">Apple iPhone 14 Pro (128 GB) - Deep Purple</h4>
+                        <p class="text-muted-foreground text-sm mb-3 line-clamp-2" data-bind="product.description">6.1-inch Super Retina XDR display with ProMotion. A16 Bionic chip. Pro camera system with 48MP main camera.</p>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="price-tag px-3 py-1 rounded-lg">
+                                <span class="text-lg font-bold text-green-700" data-bind="product.salePrice">₹1,11,900</span>
+                                <span class="text-sm text-muted-foreground line-through ml-2" data-bind="product.originalPrice">₹1,29,900</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="#" class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg text-center text-sm font-medium hover:bg-blue-600 transition-colors" data-implementation="Should open Flipkart product page">
+                                <i class="fas fa-shopping-cart mr-1"></i>View on Flipkart
+                            </a>
+                            <button class="p-2 border border-border rounded-lg hover:bg-secondary transition-colors" data-event="click:handleRemoveProduct">
+                                <i class="fas fa-trash text-destructive"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 3 - Amazon -->
+                <div class="product-card bg-card border border-border rounded-xl overflow-hidden shadow-sm" data-mock="true">
+                    <!-- MacBook Air M2 in silver showing the keyboard and screen -->
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1541807084-5c52b6b3adef?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="MacBook Air M2" class="w-full h-48 object-cover" />
+                        <div class="absolute top-3 right-3">
+                            <span class="discount-badge text-white px-2 py-1 rounded-md text-xs font-bold">10% OFF</span>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-accent text-accent-foreground px-2 py-1 rounded-md text-xs font-bold">Amazon</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold text-lg mb-2 line-clamp-2" data-bind="product.title">Apple MacBook Air M2 Chip (13-inch, 8GB RAM, 256GB SSD)</h4>
+                        <p class="text-muted-foreground text-sm mb-3 line-clamp-2" data-bind="product.description">Supercharged by M2 chip. 13.6-inch Liquid Retina display. 1080p FaceTime HD camera. MagSafe charging port.</p>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="price-tag px-3 py-1 rounded-lg">
+                                <span class="text-lg font-bold text-green-700" data-bind="product.salePrice">₹1,07,900</span>
+                                <span class="text-sm text-muted-foreground line-through ml-2" data-bind="product.originalPrice">₹1,19,900</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="#" class="flex-1 bg-accent text-accent-foreground py-2 px-4 rounded-lg text-center text-sm font-medium hover:bg-accent/90 transition-colors" data-implementation="Should open Amazon product page">
+                                <i class="fab fa-amazon mr-1"></i>View on Amazon
+                            </a>
+                            <button class="p-2 border border-border rounded-lg hover:bg-secondary transition-colors" data-event="click:handleRemoveProduct">
+                                <i class="fas fa-trash text-destructive"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 4 - Flipkart -->
+                <div class="product-card bg-card border border-border rounded-xl overflow-hidden shadow-sm" data-mock="true">
+                    <!-- Samsung smart TV displaying a vibrant nature scene -->
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="Samsung Smart TV" class="w-full h-48 object-cover" />
+                        <div class="absolute top-3 right-3">
+                            <span class="discount-badge text-white px-2 py-1 rounded-md text-xs font-bold">30% OFF</span>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-blue-500 text-white px-2 py-1 rounded-md text-xs font-bold">Flipkart</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold text-lg mb-2 line-clamp-2" data-bind="product.title">Samsung 55-inch Crystal 4K Ultra HD Smart LED TV</h4>
+                        <p class="text-muted-foreground text-sm mb-3 line-clamp-2" data-bind="product.description">Crystal Processor 4K, HDR10+, Smart TV powered by Tizen OS with voice control and multiple connectivity options.</p>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="price-tag px-3 py-1 rounded-lg">
+                                <span class="text-lg font-bold text-green-700" data-bind="product.salePrice">₹42,990</span>
+                                <span class="text-sm text-muted-foreground line-through ml-2" data-bind="product.originalPrice">₹61,990</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="#" class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg text-center text-sm font-medium hover:bg-blue-600 transition-colors" data-implementation="Should open Flipkart product page">
+                                <i class="fas fa-shopping-cart mr-1"></i>View on Flipkart
+                            </a>
+                            <button class="p-2 border border-border rounded-lg hover:bg-secondary transition-colors" data-event="click:handleRemoveProduct">
+                                <i class="fas fa-trash text-destructive"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 5 - Amazon -->
+                <div class="product-card bg-card border border-border rounded-xl overflow-hidden shadow-sm" data-mock="true">
+                    <!-- Nike Air Force 1 white sneakers on clean background -->
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="Nike Air Force 1" class="w-full h-48 object-cover" />
+                        <div class="absolute top-3 right-3">
+                            <span class="discount-badge text-white px-2 py-1 rounded-md text-xs font-bold">20% OFF</span>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-accent text-accent-foreground px-2 py-1 rounded-md text-xs font-bold">Amazon</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold text-lg mb-2 line-clamp-2" data-bind="product.title">Nike Air Force 1 '07 Men's Shoes</h4>
+                        <p class="text-muted-foreground text-sm mb-3 line-clamp-2" data-bind="product.description">Classic basketball shoe with premium leather upper, durable rubber outsole, and iconic Nike Air cushioning.</p>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="price-tag px-3 py-1 rounded-lg">
+                                <span class="text-lg font-bold text-green-700" data-bind="product.salePrice">₹7,199</span>
+                                <span class="text-sm text-muted-foreground line-through ml-2" data-bind="product.originalPrice">₹8,999</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="#" class="flex-1 bg-accent text-accent-foreground py-2 px-4 rounded-lg text-center text-sm font-medium hover:bg-accent/90 transition-colors" data-implementation="Should open Amazon product page">
+                                <i class="fab fa-amazon mr-1"></i>View on Amazon
+                            </a>
+                            <button class="p-2 border border-border rounded-lg hover:bg-secondary transition-colors" data-event="click:handleRemoveProduct">
+                                <i class="fas fa-trash text-destructive"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 6 - Flipkart -->
+                <div class="product-card bg-card border border-border rounded-xl overflow-hidden shadow-sm" data-mock="true">
+                    <!-- Canon DSLR camera with lens on white background -->
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="Canon EOS DSLR" class="w-full h-48 object-cover" />
+                        <div class="absolute top-3 right-3">
+                            <span class="discount-badge text-white px-2 py-1 rounded-md text-xs font-bold">18% OFF</span>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-blue-500 text-white px-2 py-1 rounded-md text-xs font-bold">Flipkart</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold text-lg mb-2 line-clamp-2" data-bind="product.title">Canon EOS 1500D DSLR Camera with 18-55mm Lens</h4>
+                        <p class="text-muted-foreground text-sm mb-3 line-clamp-2" data-bind="product.description">24.1MP APS-C CMOS sensor, DIGIC 4+ image processor, Full HD video recording, Wi-Fi and NFC connectivity.</p>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="price-tag px-3 py-1 rounded-lg">
+                                <span class="text-lg font-bold text-green-700" data-bind="product.salePrice">₹32,999</span>
+                                <span class="text-sm text-muted-foreground line-through ml-2" data-bind="product.originalPrice">₹39,999</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="#" class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg text-center text-sm font-medium hover:bg-blue-600 transition-colors" data-implementation="Should open Flipkart product page">
+                                <i class="fas fa-shopping-cart mr-1"></i>View on Flipkart
+                            </a>
+                            <button class="p-2 border border-border rounded-lg hover:bg-secondary transition-colors" data-event="click:handleRemoveProduct">
+                                <i class="fas fa-trash text-destructive"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 7 - Amazon -->
+                <div class="product-card bg-card border border-border rounded-xl overflow-hidden shadow-sm" data-mock="true">
+                    <!-- Amazon Echo Dot smart speaker in charcoal color -->
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1543512214-318c7553f230?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300" alt="Amazon Echo Dot" class="w-full h-48 object-cover" />
+                        <div class="absolute top-3 right-3">
+                            <span class="discount-badge text-white px-2 py-1 rounded-md text-xs font-bold">35% OFF</span>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-accent text-accent-foreground px-2 py-1 rounded-md text-xs font-bold">Amazon</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold text-lg mb-2 line-clamp-2" data-bind="product.title">Amazon Echo Dot (5th Gen) Smart Speaker with Alexa</h4>
+                        <p class="text-muted-foreground text-sm mb-3 line-clamp-2" data-bind="product.description">Our best-sounding Echo Dot yet with clearer vocals and deeper bass. Voice control for smart home devices.</p>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="price-tag px-3 py-1 rounded-lg">
+                                <span class="text-lg font-bold text-green-700" data-bind="product.salePrice">₹3,249</span>
+                                <span class="text-sm text-muted-foreground line-through ml-2" data-bind="product.originalPrice">₹4,999</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="#" class="flex-1 bg-accent text-accent-foreground py-2 px-4 rounded-lg text-center text-sm font-medium hover:bg-accent/90 transition-colors" data-implementation="Should open Amazon product page">
+                                <i class="fab fa-amazon mr-1"></i>View on Amazon
+                            </a>
+                            <button class="p-2 border border-border rounded-lg hover:bg-secondary transition-colors" data-event="click:handleRemoveProduct">
+                                <i class="fas fa-trash text-destructive"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 8 - Flipkart -->
+                <div class="product-card bg-card border border-border rounded-xl overflow-hidden shadow-sm" data-mock="true">
+                    <!-- Gaming chair in black and red colors with ergonomic design -->
+                    <div class="relative">
+                        <img src="https://pixabay.com/get/g859d8c039c0f93b5a48dac421e130de1b69226f898d365b0971b925a63f35f244144a9238fc8a99fe605c5f9c9124506545849677ddf52823fda68f2b3bf1095_1280.jpg" alt="Gaming Chair" class="w-full h-48 object-cover" />
+                        <div class="absolute top-3 right-3">
+                            <span class="discount-badge text-white px-2 py-1 rounded-md text-xs font-bold">40% OFF</span>
+                        </div>
+                        <div class="absolute top-3 left-3">
+                            <span class="bg-blue-500 text-white px-2 py-1 rounded-md text-xs font-bold">Flipkart</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold text-lg mb-2 line-clamp-2" data-bind="product.title">Ergonomic Gaming Chair with Lumbar Support - Red & Black</h4>
+                        <p class="text-muted-foreground text-sm mb-3 line-clamp-2" data-bind="product.description">Premium PU leather, 360-degree swivel, adjustable height, removable headrest and lumbar pillow for comfort.</p>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="price-tag px-3 py-1 rounded-lg">
+                                <span class="text-lg font-bold text-green-700" data-bind="product.salePrice">₹11,999</span>
+                                <span class="text-sm text-muted-foreground line-through ml-2" data-bind="product.originalPrice">₹19,999</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="#" class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg text-center text-sm font-medium hover:bg-blue-600 transition-colors" data-implementation="Should open Flipkart product page">
+                                <i class="fas fa-shopping-cart mr-1"></i>View on Flipkart
+                            </a>
+                            <button class="p-2 border border-border rounded-lg hover:bg-secondary transition-colors" data-event="click:handleRemoveProduct">
+                                <i class="fas fa-trash text-destructive"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- @END_MAP )) -->
+
+            <!-- Load More Button -->
+            <div class="text-center mt-12">
+                <button class="bg-primary text-primary-foreground px-8 py-3 rounded-lg hover:bg-primary/90 transition-colors font-medium" data-event="click:handleLoadMore">
+                    <i class="fas fa-refresh mr-2"></i>Load More Products
+                </button>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Products Grid -->
+
+    <!-- @COMPONENT: Features Section -->
+    <section class="py-16 bg-card">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold mb-4">Why Choose AffiliateHub?</h3>
+                <p class="text-lg text-muted-foreground">Powerful features to boost your affiliate marketing success</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="text-center p-6">
+                    <div class="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-magic text-primary text-2xl"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3">Auto Product Fetch</h4>
+                    <p class="text-muted-foreground">Simply paste any Amazon or Flipkart product URL and get all details automatically extracted including images, prices, and descriptions.</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="bg-accent/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-mobile-alt text-accent text-2xl"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3">Mobile Responsive</h4>
+                    <p class="text-muted-foreground">Your affiliate site looks perfect on all devices. Optimized for mobile, tablet, and desktop viewing experiences.</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="bg-green-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-line text-green-500 text-2xl"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3">Track Performance</h4>
+                    <p class="text-muted-foreground">Monitor clicks, conversions, and earnings with built-in analytics. Optimize your affiliate marketing strategy with data.</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="bg-purple-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shield-alt text-purple-500 text-2xl"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3">Secure & Reliable</h4>
+                    <p class="text-muted-foreground">Enterprise-grade security with reliable uptime. Your affiliate links and data are always protected and accessible.</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="bg-blue-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-lightning-bolt text-blue-500 text-2xl"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3">Lightning Fast</h4>
+                    <p class="text-muted-foreground">Optimized for speed with instant product fetching and fast loading times. Better user experience means higher conversions.</p>
+                </div>
+                
+                <div class="text-center p-6">
+                    <div class="bg-red-500/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-cogs text-red-500 text-2xl"></i>
+                    </div>
+                    <h4 class="text-xl font-semibold mb-3">Easy Customization</h4>
+                    <p class="text-muted-foreground">Customize product displays, layouts, and branding to match your style. No coding knowledge required for basic customizations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Features Section -->
+
+    <!-- @COMPONENT: Footer -->
+    <footer class="bg-foreground text-background py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-link text-primary text-2xl"></i>
+                        <h4 class="text-2xl font-bold">AffiliateHub</h4>
+                    </div>
+                    <p class="text-background/80 mb-4 max-w-md">
+                        The easiest way to create beautiful affiliate product showcases from Amazon and Flipkart links. 
+                        Start earning more with better product presentations.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-background/60 hover:text-primary transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-background/60 hover:text-primary transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-background/60 hover:text-primary transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-background/60 hover:text-primary transition-colors">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h5 class="font-semibold mb-4">Quick Links</h5>
+                    <ul class="space-y-2 text-background/80">
+                        <li><a href="#" class="hover:text-primary transition-colors">Home</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Products</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Add Product</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Analytics</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Help</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h5 class="font-semibold mb-4">Support</h5>
+                    <ul class="space-y-2 text-background/80">
+                        <li><a href="#" class="hover:text-primary transition-colors">Documentation</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">API Reference</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-background/20 mt-8 pt-8 text-center text-background/60">
+                <p>&copy; 2024 AffiliateHub. All rights reserved. Built with ❤️ for affiliate marketers.</p>
+            </div>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: Footer -->
+
+    <script>
+        // IIFE to contain all functionality
+        (function() {
+            // TODO: Implement business logic, API calls, and state management
+            
+            // Mock functionality for demonstration
+            function handleFetchProduct(url) {
+                // TODO: Validate URL format for Amazon/Flipkart
+                // TODO: Call API to scrape product details
+                // TODO: Display fetched product in UI
+                console.log('Fetching product from:', url);
+            }
+            
+            function handleRemoveProduct(productId) {
+                // TODO: Remove product from list
+                // TODO: Update UI
+                console.log('Removing product:', productId);
+            }
+            
+            function handleLoadMore() {
+                // TODO: Load additional products
+                // TODO: Pagination or infinite scroll
+                console.log('Loading more products...');
+            }
+            
+            // Smooth scrolling for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            // Mobile menu toggle (placeholder)
+            const mobileMenuButton = document.querySelector('button.md\\:hidden');
+            if (mobileMenuButton) {
+                mobileMenuButton.addEventListener('click', function() {
+                    // TODO: Implement mobile menu toggle
+                    console.log('Mobile menu toggle');
+                });
+            }
+            
+        })();
+    </script>
+</body>
+</html>
