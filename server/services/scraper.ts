@@ -23,6 +23,8 @@ export class ProductScraper {
 
   public static async scrapeProduct(url: string): Promise<ScrapedProduct> {
     try {
+      console.log(`[SCRAPER] Starting scrape for: ${url}`);
+      
       const response = await fetch(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -42,13 +44,27 @@ export class ProductScraper {
       const html = await response.text();
       const $ = cheerio.load(html);
 
+      let result: ScrapedProduct;
       if (this.isAmazonUrl(url)) {
-        return this.scrapeAmazonProduct($, url);
+        console.log(`[SCRAPER] Detected Amazon URL`);
+        result = this.scrapeAmazonProduct($, url);
       } else if (this.isFlipkartUrl(url)) {
-        return this.scrapeFlipkartProduct($, url);
+        console.log(`[SCRAPER] Detected Flipkart URL`);
+        result = this.scrapeFlipkartProduct($, url);
       } else {
         throw new Error('Unsupported platform. Only Amazon and Flipkart URLs are supported.');
       }
+      
+      console.log(`[SCRAPER] Scraped result:`, {
+        title: result.title?.substring(0, 50) + '...',
+        platform: result.platform,
+        hasImage: !!result.imageUrl,
+        imageUrl: result.imageUrl?.substring(0, 80) + '...',
+        salePrice: result.salePrice,
+        originalPrice: result.originalPrice
+      });
+      
+      return result;
     } catch (error) {
       console.error('Scraping error:', error);
       throw new Error(`Failed to scrape product: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -141,31 +157,41 @@ export class ProductScraper {
   }
 
   private static scrapeFlipkartProduct($: cheerio.CheerioAPI, url: string): ScrapedProduct {
-    // Updated comprehensive selectors for Flipkart title
+    console.log(`[FLIPKART] Starting Flipkart scraping for: ${url}`);
+    
+    // Updated comprehensive selectors for Flipkart title with 2024/2025 selectors
     let title = '';
     const titleSelectors = [
-      '.B_NuCI', // Classic selector
-      '._35KyD6', // Alternative classic
-      'h1[class*="title"]', // Generic title
-      '._6EBuvT', // Another classic
-      'span.B_NuCI', // Span variant
-      '.VU-ZEz', // Updated selector
-      '.x-product-title-label', // New layout
-      '._1AtVbE div[class*="col-"]', // New grid layout
-      'h1._1AtVbE', // Header variant
-      'span[class*="_1AtVbE"]', // Span variant
-      'div[class*="B_NuCI"]', // Div variant
+      // 2024-2025 Updated selectors
+      'span[class*="VU-ZEz"]', // New primary selector
+      'h1[class*="VU-ZEz"]',  // Header variant
+      'span.VU-ZEz',
+      '.VU-ZEz',
+      // Classic selectors
+      '.B_NuCI', 
+      '._35KyD6', 
+      'h1[class*="title"]', 
+      '._6EBuvT', 
+      'span.B_NuCI', 
+      '.x-product-title-label', 
+      '._1AtVbE div[class*="col-"]', 
+      'h1._1AtVbE', 
+      'span[class*="_1AtVbE"]', 
+      'div[class*="B_NuCI"]', 
       'h1[data-automation-id="product-title"]',
       '.product-title',
       'h1[class*="_35KyD6"]',
       'span[class*="_35KyD6"]',
-      'h1'
+      // Generic fallbacks
+      'h1', 'h2'
     ];
     
     for (const selector of titleSelectors) {
       const titleText = $(selector).text().trim();
+      console.log(`[FLIPKART] Trying title selector: ${selector} -> "${titleText?.substring(0, 50)}..."`);
       if (titleText && titleText.length > 10 && !titleText.toLowerCase().includes('flipkart')) {
         title = titleText;
+        console.log(`[FLIPKART] Found title: ${title?.substring(0, 50)}...`);
         break;
       }
     }
@@ -198,48 +224,48 @@ export class ProductScraper {
     if (!title) title = 'Product Title Not Found';
     if (!description) description = 'Description not available';
 
-    // Updated selectors for Flipkart images - more comprehensive approach
+    // Updated comprehensive image selectors for Flipkart 2024/2025
     let imageUrl = '';
     
-    // Try specific Flipkart image selectors
     const imageSelectors = [
-      'img._53J4C-._2FaSu6', // Old selector
-      'img._396cs4', // Common selector
-      'img._2r_T1I', // Alternative selector
+      // 2024-2025 Updated image selectors
+      'img[class*="_0DkuPH"]', // New primary image selector
+      'img[class*="_53J4C-"]', // Updated variant  
+      'img._53J4C-._2FaSu6', // Classic combo
+      'img._396cs4', // Still common
+      'img._2r_T1I', // Alternative
       'img[class*="_396cs4"]',
       'img[class*="_2r_T1I"]',
-      'img[class*="_4WELSP"]', // Updated selector
-      'img[class*="_2FaSu6"]', // Updated selector
-      '._1BweW8 img',
-      '._2upR2l img',
-      '._3587i4 img',
-      '.CXW8mj img',
-      '._2nnSb9 img', // New selector
-      '._1Nyybr img', // New selector
-      '._3BTv9X img', // New selector
-      '._2eqpOb img', // New selector
-      'img[alt*="product"]',
-      'img[data-automation-id="product-image"]',
-      '._3BTv9X ._2FaSu6', // Nested selector
-      'div[class*="image"] img',
-      'figure img',
-      '.q6DClP img' // Another common selector
+      'img[class*="_4WELSP"]',
+      'img[class*="_2FaSu6"]',
+      // Container-based selectors
+      '._1BweW8 img', '._2upR2l img', '._3587i4 img', '.CXW8mj img',
+      '._2nnSb9 img', '._1Nyybr img', '._3BTv9X img', '._2eqpOb img',
+      'div[class*="_1AtVbE"] img', // New container
+      // Generic selectors
+      'img[alt*="product"]', 'img[data-automation-id="product-image"]',
+      '._3BTv9X ._2FaSu6', 'div[class*="image"] img', 'figure img',
+      '.q6DClP img', 'img[src*="rukminim"]' // Flipkart CDN specific
     ];
     
     for (const selector of imageSelectors) {
       const img = $(selector).attr('src');
-      if (img && !img.includes('placeholder') && !img.includes('default')) {
+      console.log(`[FLIPKART] Trying image selector: ${selector} -> ${img?.substring(0, 80)}...`);
+      if (img && img.startsWith('http') && !img.includes('placeholder') && !img.includes('default')) {
         imageUrl = img;
+        console.log(`[FLIPKART] Found image: ${imageUrl?.substring(0, 80)}...`);
         break;
       }
     }
     
     // If still no image found, try data attributes
     if (!imageUrl) {
+      console.log(`[FLIPKART] No image found with src, trying data attributes...`);
       for (const selector of imageSelectors) {
-        const img = $(selector).attr('data-src') || $(selector).attr('data-lazy-src');
-        if (img && !img.includes('placeholder') && !img.includes('default')) {
+        const img = $(selector).attr('data-src') || $(selector).attr('data-lazy-src') || $(selector).attr('data-original');
+        if (img && img.startsWith('http') && !img.includes('placeholder') && !img.includes('default')) {
           imageUrl = img;
+          console.log(`[FLIPKART] Found image via data attr: ${imageUrl?.substring(0, 80)}...`);
           break;
         }
       }
@@ -249,58 +275,81 @@ export class ProductScraper {
     let salePriceText = '';
     let originalPriceText = '';
     
-    // Current price selectors (more comprehensive)
+    // 2024-2025 Updated current price selectors
     const salePriceSelectors = [
-      '._30jeq3._16Jk6d', // Old selector
-      '._3I9_wc._2p6lqe', // Alternative
-      '._1_WHN1', // Alternative
-      '._25b18c', // Alternative
-      '._16Jk6d', // Generic
-      '._2Y87o_ ._3I9_wc', // New layout
-      '._1vC4OE ._3I9_wc', // Another layout
-      '._5H1SUz ._3I9_wc', // Another layout
-      '._3I9_wc', // Generic current price
-      '._4b5DiR', // Another price selector
-      '._1Y8a60', // Another price selector
-      '.Nx9bqj.CxhGGd', // Updated selector
-      '.Nx9bqj', // Simplified selector
-      '.CxhGGd', // Another price selector
+      // Latest 2024-2025 selectors
+      'div[class*="Nx9bqj"] span', // New layout price
+      'span[class*="Nx9bqj"]', // Direct span selector
+      'div[class*="_30jeq3"] span', // Updated container
+      // Classic working selectors
+      '._30jeq3._16Jk6d', 
+      '._3I9_wc._2p6lqe', 
+      '._1_WHN1', 
+      '._25b18c', 
+      '._16Jk6d', 
+      // Container-based selectors
+      '._2Y87o_ ._3I9_wc', 
+      '._1vC4OE ._3I9_wc', 
+      '._5H1SUz ._3I9_wc', 
+      '._3I9_wc', 
+      '._4b5DiR', 
+      '._1Y8a60', 
+      // Updated selectors
+      '.Nx9bqj.CxhGGd', 
+      '.Nx9bqj', 
+      '.CxhGGd',
+      'div[class*="CxhGGd"]',
+      // Generic fallbacks
       '[data-automation-id="current-price"]',
       '.current-price'
     ];
     
-    // Original/MRP price selectors
+    // 2024-2025 Updated original/MRP price selectors
     const originalPriceSelectors = [
-      '._3I9_wc._27UcVY', // Old selector
-      '._2p6lqe', // Alternative
-      '._3auQ3N', // Alternative
-      '._3YN9BK ._2p6lqe', // Nested selector
-      '._5Gpcqm ._2p6lqe', // Another nested
-      '._27UcVY', // Generic original price
-      '._1YaYEu', // Another original price selector
-      '._5Gpcqm', // Container selector
-      '.yRaY8j.ZYYwLA', // Updated selector
-      '.yRaY8j', // Simplified selector
+      // Latest 2024-2025 selectors
+      'div[class*="yRaY8j"] span', // New layout MRP
+      'span[class*="yRaY8j"]', // Direct span selector
+      'div[class*="_3I9_wc"][class*="_27UcVY"]', // Updated combo
+      // Classic working selectors
+      '._3I9_wc._27UcVY', 
+      '._2p6lqe', 
+      '._3auQ3N', 
+      // Nested selectors
+      '._3YN9BK ._2p6lqe', 
+      '._5Gpcqm ._2p6lqe', 
+      '._27UcVY', 
+      '._1YaYEu', 
+      '._5Gpcqm', 
+      // Updated selectors
+      '.yRaY8j.ZYYwLA', 
+      '.yRaY8j', 
+      'div[class*="ZYYwLA"]',
+      // Generic fallbacks
       '[data-automation-id="original-price"]',
       '.original-price',
-      'span[style*="text-decoration: line-through"]', // Generic strikethrough
-      'span[style*="line-through"]' // Another strikethrough
+      'span[style*="text-decoration: line-through"]', 
+      'span[style*="line-through"]',
+      '.line-through' // Generic class
     ];
     
-    // Try to find sale price
+    // Try to find sale price with debugging
     for (const selector of salePriceSelectors) {
       const price = $(selector).text().trim();
+      console.log(`[FLIPKART] Trying sale price selector: ${selector} -> "${price}"`);
       if (price && price.match(/₹|Rs|\d/)) {
         salePriceText = price;
+        console.log(`[FLIPKART] Found sale price: ${salePriceText}`);
         break;
       }
     }
     
-    // Try to find original price
+    // Try to find original price with debugging
     for (const selector of originalPriceSelectors) {
       const price = $(selector).text().trim();
+      console.log(`[FLIPKART] Trying original price selector: ${selector} -> "${price}"`);
       if (price && price.match(/₹|Rs|\d/) && price !== salePriceText) {
         originalPriceText = price;
+        console.log(`[FLIPKART] Found original price: ${originalPriceText}`);
         break;
       }
     }
