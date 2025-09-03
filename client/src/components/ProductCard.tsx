@@ -107,6 +107,12 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.title}
         </h4>
         
+        {product.category && (
+          <span className="inline-block bg-muted text-muted-foreground px-2 py-1 rounded-full text-xs font-medium mb-2" data-testid={`text-category-${product.id}`}>
+            {product.category}
+          </span>
+        )}
+        
         <p className="text-muted-foreground text-sm mb-3 line-clamp-2" data-testid={`text-description-${product.id}`}>
           {product.description || "No description available"}
         </p>

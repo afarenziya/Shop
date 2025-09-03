@@ -11,6 +11,7 @@ export const products = pgTable("products", {
   originalPrice: decimal("original_price", { precision: 10, scale: 2 }),
   salePrice: decimal("sale_price", { precision: 10, scale: 2 }),
   discount: integer("discount"), // percentage
+  category: varchar("category", { length: 50 }), // product category
   platform: varchar("platform", { length: 20 }).notNull(), // 'amazon' or 'flipkart'
   productUrl: text("product_url").notNull(),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),

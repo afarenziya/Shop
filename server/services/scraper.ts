@@ -7,6 +7,7 @@ export interface ScrapedProduct {
   originalPrice?: string;
   salePrice?: string;
   discount?: number;
+  category?: string;
   platform: 'amazon' | 'flipkart';
   productUrl: string;
 }
@@ -114,9 +115,17 @@ export class ProductScraper {
       }
     }
 
+    // Extract category from breadcrumbs or page structure
+    const categoryText = $('#wayfinding-breadcrumbs_feature_div li:nth-child(2) a').text().trim() ||
+                        $('#wayfinding-breadcrumbs_feature_div li:nth-child(3) a').text().trim() ||
+                        $('.a-breadcrumb li:nth-child(2) a').text().trim() ||
+                        $('.nav-subnav a').first().text().trim() ||
+                        '';
+
     // Clean up title - remove extra whitespace and newlines
     const cleanTitle = title.replace(/\s+/g, ' ').replace(/\n/g, ' ').trim();
     const cleanDescription = description.replace(/\s+/g, ' ').replace(/\n/g, ' ').trim();
+    const category = this.categorizeProduct(cleanTitle, categoryText);
 
     return {
       title: cleanTitle || 'Product Title Not Found',
@@ -125,6 +134,7 @@ export class ProductScraper {
       originalPrice: originalPrice || undefined,
       salePrice: salePrice || undefined,
       discount: discount || undefined,
+      category: category || undefined,
       platform: 'amazon',
       productUrl: url
     };
@@ -151,14 +161,18 @@ export class ProductScraper {
                        $('[data-automation-id="product-description"]').text().trim() ||
                        'Description not available';
 
-    // Multiple selectors for image
-    const imageUrl = $('img._396cs4').attr('src') ||
+    // Multiple selectors for image - updated for current Flipkart layout
+    const imageUrl = $('img._53J4C-._2FaSu6').attr('src') ||
+                    $('img._396cs4').attr('src') ||
                     $('img._2r_T1I').attr('src') ||
                     $('img[class*="_396cs4"]').attr('src') ||
-                    $('img[class*="image"]').first().attr('src') ||
+                    $('._1BweW8 img').attr('src') ||
                     $('._2upR2l img').attr('src') ||
                     $('._3587i4 img').attr('src') ||
+                    $('.CXW8mj img').attr('src') ||
+                    $('img[alt*="product"]').first().attr('src') ||
                     $('img[data-automation-id="product-image"]').attr('src') ||
+                    $('img').first().attr('src') ||
                     '';
 
     // Multiple selectors for sale price  
@@ -205,9 +219,16 @@ export class ProductScraper {
       }
     }
 
+    // Extract category from breadcrumbs
+    const categoryText = $('._1HEvpc').text().trim() ||
+                        $('._2whP9R').text().trim() ||
+                        $('.breadcrumb li:nth-child(2)').text().trim() ||
+                        '';
+
     // Clean up title and description - remove extra whitespace and newlines
     const cleanTitle = title.replace(/\s+/g, ' ').replace(/\n/g, ' ').trim();
     const cleanDescription = description.replace(/\s+/g, ' ').replace(/\n/g, ' ').trim();
+    const category = this.categorizeProduct(cleanTitle, categoryText);
 
     return {
       title: cleanTitle || 'Product Title Not Found',
@@ -216,8 +237,51 @@ export class ProductScraper {
       originalPrice: originalPrice || undefined,
       salePrice: salePrice || undefined,
       discount: discount || undefined,
+      category: category || undefined,
       platform: 'flipkart',
       productUrl: url
     };
+  }
+
+  private static categorizeProduct(title: string, categoryText: string): string {
+    const titleLower = title.toLowerCase();
+    const categoryLower = categoryText.toLowerCase();
+    
+    // Category keywords mapping
+    const categoryMap = [
+      { keywords: ['mobile', 'phone', 'smartphone', 'iphone', 'samsung', 'oneplus', 'oppo', 'vivo', 'mi', 'redmi'], category: 'Mobile & Electronics' },
+      { keywords: ['laptop', 'computer', 'desktop', 'macbook', 'dell', 'hp', 'asus', 'lenovo'], category: 'Computers & Laptops' },
+      { keywords: ['headphone', 'earphone', 'speaker', 'audio', 'music', 'sound', 'bluetooth'], category: 'Audio & Headphones' },
+      { keywords: ['camera', 'photo', 'video', 'lens', 'canon', 'nikon', 'sony'], category: 'Camera & Photography' },
+      { keywords: ['watch', 'smartwatch', 'fitness', 'tracker', 'band', 'apple watch'], category: 'Watches & Fitness' },
+      { keywords: ['clothing', 'shirt', 'tshirt', 't-shirt', 'dress', 'jeans', 'trouser', 'jacket', 'hoodie', 'sweater'], category: 'Fashion & Clothing' },
+      { keywords: ['shoe', 'sneaker', 'boots', 'sandal', 'footwear', 'nike', 'adidas', 'puma'], category: 'Footwear' },
+      { keywords: ['bag', 'backpack', 'handbag', 'wallet', 'purse', 'luggage', 'suitcase'], category: 'Bags & Luggage' },
+      { keywords: ['book', 'novel', 'textbook', 'magazine', 'kindle', 'ebook'], category: 'Books & Media' },
+      { keywords: ['toy', 'game', 'puzzle', 'doll', 'action figure', 'lego'], category: 'Toys & Games' },
+      { keywords: ['home', 'kitchen', 'furniture', 'chair', 'table', 'bed', 'sofa'], category: 'Home & Kitchen' },
+      { keywords: ['beauty', 'cosmetic', 'skincare', 'makeup', 'perfume', 'shampoo', 'soap'], category: 'Beauty & Personal Care' },
+      { keywords: ['health', 'vitamin', 'supplement', 'medicine', 'protein', 'fitness'], category: 'Health & Wellness' },
+      { keywords: ['car', 'bike', 'automotive', 'motorcycle', 'vehicle', 'accessories'], category: 'Automotive' },
+      { keywords: ['sport', 'gym', 'exercise', 'cricket', 'football', 'basketball', 'tennis'], category: 'Sports & Fitness' }
+    ];
+
+    // Check category text first
+    if (categoryText) {
+      for (const cat of categoryMap) {
+        if (cat.keywords.some(keyword => categoryLower.includes(keyword))) {
+          return cat.category;
+        }
+      }
+    }
+
+    // Check title for keywords
+    for (const cat of categoryMap) {
+      if (cat.keywords.some(keyword => titleLower.includes(keyword))) {
+        return cat.category;
+      }
+    }
+
+    return 'General';
   }
 }
