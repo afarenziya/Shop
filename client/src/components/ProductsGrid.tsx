@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import ProductCard from "./ProductCard";
+import ProductCard from "@/components/ProductCard";
 import type { Product } from "@shared/schema";
 
 export default function ProductsGrid() {
