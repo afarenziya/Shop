@@ -1,5 +1,8 @@
-import { type User, type InsertUser, type Product, type InsertProduct } from "@shared/schema";
+import { type User, type InsertUser, type Product, type InsertProduct, products, users } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { drizzle } from 'drizzle-orm/neon-http';
+import { neon } from '@neondatabase/serverless';
+import { eq, desc } from 'drizzle-orm';
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -70,4 +73,58 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// PostgreSQL Database Storage Implementation
+export class DBStorage implements IStorage {
+  private db;
+
+  constructor() {
+    const sql = neon(process.env.DATABASE_URL!);
+    this.db = drizzle(sql);
+  }
+
+  async getUser(id: string): Promise<User | undefined> {
+    const result = await this.db.select().from(users).where(eq(users.id, id));
+    return result[0];
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const result = await this.db.select().from(users).where(eq(users.username, username));
+    return result[0];
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const result = await this.db.insert(users).values(insertUser).returning();
+    return result[0];
+  }
+
+  async getProducts(): Promise<Product[]> {
+    const result = await this.db.select().from(products).orderBy(desc(products.createdAt));
+    return result;
+  }
+
+  async getProduct(id: string): Promise<Product | undefined> {
+    const result = await this.db.select().from(products).where(eq(products.id, id));
+    return result[0];
+  }
+
+  async createProduct(insertProduct: InsertProduct): Promise<Product> {
+    console.log(`[DB] Saving product to database:`, {
+      title: insertProduct.title?.substring(0, 50) + '...',
+      platform: insertProduct.platform,
+      hasImage: !!insertProduct.imageUrl,
+      hasPrice: !!(insertProduct.salePrice || insertProduct.originalPrice)
+    });
+    
+    const result = await this.db.insert(products).values(insertProduct).returning();
+    console.log(`[DB] Product saved with ID: ${result[0].id}`);
+    return result[0];
+  }
+
+  async deleteProduct(id: string): Promise<boolean> {
+    const result = await this.db.delete(products).where(eq(products.id, id));
+    return result.rowCount! > 0;
+  }
+}
+
+// Use database storage instead of memory storage
+export const storage = new DBStorage();
