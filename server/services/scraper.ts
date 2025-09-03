@@ -23,7 +23,7 @@ export class ProductScraper {
 
   public static async scrapeProduct(url: string): Promise<ScrapedProduct> {
     try {
-      console.log(`[SCRAPER] Starting scrape for: ${url}`);
+      // console.log(`[SCRAPER] Starting scrape for: ${url}`);
       
       const response = await fetch(url, {
         headers: {
@@ -44,27 +44,13 @@ export class ProductScraper {
       const html = await response.text();
       const $ = cheerio.load(html);
 
-      let result: ScrapedProduct;
       if (this.isAmazonUrl(url)) {
-        console.log(`[SCRAPER] Detected Amazon URL`);
-        result = this.scrapeAmazonProduct($, url);
+        return this.scrapeAmazonProduct($, url);
       } else if (this.isFlipkartUrl(url)) {
-        console.log(`[SCRAPER] Detected Flipkart URL`);
-        result = this.scrapeFlipkartProduct($, url);
+        return this.scrapeFlipkartProduct($, url);
       } else {
         throw new Error('Unsupported platform. Only Amazon and Flipkart URLs are supported.');
       }
-      
-      console.log(`[SCRAPER] Scraped result:`, {
-        title: result.title?.substring(0, 50) + '...',
-        platform: result.platform,
-        hasImage: !!result.imageUrl,
-        imageUrl: result.imageUrl?.substring(0, 80) + '...',
-        salePrice: result.salePrice,
-        originalPrice: result.originalPrice
-      });
-      
-      return result;
     } catch (error) {
       console.error('Scraping error:', error);
       throw new Error(`Failed to scrape product: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -157,8 +143,6 @@ export class ProductScraper {
   }
 
   private static scrapeFlipkartProduct($: cheerio.CheerioAPI, url: string): ScrapedProduct {
-    console.log(`[FLIPKART] Starting Flipkart scraping for: ${url}`);
-    
     // Updated comprehensive selectors for Flipkart title with 2024/2025 selectors
     let title = '';
     const titleSelectors = [
@@ -188,10 +172,8 @@ export class ProductScraper {
     
     for (const selector of titleSelectors) {
       const titleText = $(selector).text().trim();
-      console.log(`[FLIPKART] Trying title selector: ${selector} -> "${titleText?.substring(0, 50)}..."`);
       if (titleText && titleText.length > 10 && !titleText.toLowerCase().includes('flipkart')) {
         title = titleText;
-        console.log(`[FLIPKART] Found title: ${title?.substring(0, 50)}...`);
         break;
       }
     }
@@ -250,22 +232,18 @@ export class ProductScraper {
     
     for (const selector of imageSelectors) {
       const img = $(selector).attr('src');
-      console.log(`[FLIPKART] Trying image selector: ${selector} -> ${img?.substring(0, 80)}...`);
       if (img && img.startsWith('http') && !img.includes('placeholder') && !img.includes('default')) {
         imageUrl = img;
-        console.log(`[FLIPKART] Found image: ${imageUrl?.substring(0, 80)}...`);
         break;
       }
     }
     
     // If still no image found, try data attributes
     if (!imageUrl) {
-      console.log(`[FLIPKART] No image found with src, trying data attributes...`);
       for (const selector of imageSelectors) {
         const img = $(selector).attr('data-src') || $(selector).attr('data-lazy-src') || $(selector).attr('data-original');
         if (img && img.startsWith('http') && !img.includes('placeholder') && !img.includes('default')) {
           imageUrl = img;
-          console.log(`[FLIPKART] Found image via data attr: ${imageUrl?.substring(0, 80)}...`);
           break;
         }
       }
@@ -332,24 +310,20 @@ export class ProductScraper {
       '.line-through' // Generic class
     ];
     
-    // Try to find sale price with debugging
+    // Try to find sale price
     for (const selector of salePriceSelectors) {
       const price = $(selector).text().trim();
-      console.log(`[FLIPKART] Trying sale price selector: ${selector} -> "${price}"`);
       if (price && price.match(/₹|Rs|\d/)) {
         salePriceText = price;
-        console.log(`[FLIPKART] Found sale price: ${salePriceText}`);
         break;
       }
     }
     
-    // Try to find original price with debugging
+    // Try to find original price
     for (const selector of originalPriceSelectors) {
       const price = $(selector).text().trim();
-      console.log(`[FLIPKART] Trying original price selector: ${selector} -> "${price}"`);
       if (price && price.match(/₹|Rs|\d/) && price !== salePriceText) {
         originalPriceText = price;
-        console.log(`[FLIPKART] Found original price: ${originalPriceText}`);
         break;
       }
     }

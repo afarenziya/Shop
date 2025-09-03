@@ -108,15 +108,7 @@ export class DBStorage implements IStorage {
   }
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
-    console.log(`[DB] Saving product to database:`, {
-      title: insertProduct.title?.substring(0, 50) + '...',
-      platform: insertProduct.platform,
-      hasImage: !!insertProduct.imageUrl,
-      hasPrice: !!(insertProduct.salePrice || insertProduct.originalPrice)
-    });
-    
     const result = await this.db.insert(products).values(insertProduct).returning();
-    console.log(`[DB] Product saved with ID: ${result[0].id}`);
     return result[0];
   }
 

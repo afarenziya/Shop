@@ -15,8 +15,8 @@ export default function Home() {
             {/* Left side - Logo */}
             <div>
               <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity" data-testid="logo-link">
-                <i className="fas fa-shopping-cart text-primary text-2xl"></i>
-                <h1 className="text-2xl font-bold text-primary">AffiliateHub</h1>
+                <i className="fas fa-tag text-primary text-2xl"></i>
+                <h1 className="text-2xl font-bold text-primary">DealPro</h1>
               </Link>
             </div>
             
@@ -46,11 +46,11 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Simplify Your Affiliate Marketing
+              Find Best Deals & Discounts
             </h2>
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed max-w-3xl mx-auto">
-              The easiest way to create beautiful product showcases from Amazon and Flipkart links. 
-              Automatically extract titles, descriptions, images, prices, categories, and direct purchase links.
+              Created by Ajay Farenziya - The easiest way to find verified deals on Amazon & Flipkart. 
+              Compare prices, discover genuine discounts, and never miss a great deal again.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Link to="/">

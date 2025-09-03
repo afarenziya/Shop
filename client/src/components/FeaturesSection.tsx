@@ -3,8 +3,8 @@ export default function FeaturesSection() {
     {
       icon: "fas fa-wand-magic-sparkles",
       color: "bg-primary/10 text-primary",
-      title: "Auto Product Fetch",
-      description: "Simply paste any Amazon or Flipkart product URL and get all details automatically extracted including images, prices, and descriptions."
+      title: "Smart Deal Finder",
+      description: "Instantly discover verified deals on Amazon & Flipkart. Get real prices, genuine discounts, and product details automatically."
     },
     {
       icon: "fas fa-mobile-screen",
@@ -15,8 +15,8 @@ export default function FeaturesSection() {
     {
       icon: "fas fa-chart-line",
       color: "bg-green-500/10 text-green-500",
-      title: "Track Performance",
-      description: "Monitor clicks, conversions, and earnings with built-in analytics. Optimize your affiliate marketing strategy with data."
+      title: "Price Tracking",
+      description: "Track price changes and get alerts on your favorite products. Never miss a deal with smart notifications by Ajay Farenziya."
     },
     {
       icon: "fas fa-shield",
@@ -42,8 +42,8 @@ export default function FeaturesSection() {
     <section id="about" className="py-16 bg-card">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h3 className="text-3xl font-bold mb-4">Why Choose AffiliateHub?</h3>
-          <p className="text-lg text-muted-foreground">Powerful features to boost your affiliate marketing success</p>
+          <h3 className="text-3xl font-bold mb-4">Why Choose DealPro?</h3>
+          <p className="text-lg text-muted-foreground">Powerful features by Ajay Farenziya to find the best deals</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

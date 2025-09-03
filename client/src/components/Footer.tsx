@@ -11,7 +11,7 @@ export default function Footer() {
     { icon: "fab fa-youtube", href: "https://youtube.com/@ajayfarenziya", name: "YouTube" },
     { icon: "fab fa-instagram", href: "https://instagram.com/ajayfarenziya", name: "Instagram" },
     { icon: "fab fa-facebook", href: "https://facebook.com/ajayfarenziya", name: "Facebook" },
-    { icon: "fab fa-whatsapp", href: "https://wa.me/+919999999999?text=Hello! I'm interested in AffiliateHub platform.", name: "WhatsApp" }
+    { icon: "fab fa-whatsapp", href: "https://wa.me/+919999999999?text=Hello! I'm interested in DealPro platform by Ajay Farenziya.", name: "WhatsApp" }
   ];
 
   return (
@@ -20,12 +20,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <i className="fas fa-link text-primary text-2xl"></i>
-              <h4 className="text-2xl font-bold">AffiliateHub</h4>
+              <i className="fas fa-tag text-primary text-2xl"></i>
+              <h4 className="text-2xl font-bold">DealPro</h4>
             </div>
             <p className="text-background/80 mb-4 max-w-md">
-              Professional affiliate marketing platform by Ajay Farenziya. 
-              Create beautiful product showcases from Amazon and Flipkart with smart categorization.
+              Professional deals & discounts platform by Ajay Farenziya. 
+              Find verified best prices on Amazon & Flipkart with instant product comparison.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social, index) => (
@@ -80,7 +80,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-background/20 mt-8 pt-8 text-center text-background/60">
-          <p>&copy; 2024 AffiliateHub by Ajay Farenziya. All rights reserved. Built with ❤️ for affiliate marketers worldwide.</p>
+          <p>&copy; 2024 DealPro by Ajay Farenziya. All rights reserved. Built with ❤️ for smart shoppers worldwide.</p>
         </div>
       </div>
     </footer>

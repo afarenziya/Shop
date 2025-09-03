@@ -2,7 +2,7 @@
 
 ## Overview
 
-AffiliateHub is a full-stack web application that enables users to create affiliate product showcases by automatically scraping product information from Amazon and Flipkart URLs. The application features a React frontend with shadcn/ui components and an Express.js backend with web scraping capabilities, designed to simplify affiliate marketing by generating beautiful product displays with pricing, images, and direct purchase links.
+DealPro is a professional deals and discounts platform created by Ajay Farenziya. This full-stack web application enables users to discover the best deals on Amazon and Flipkart by automatically scraping and comparing product prices. The application features a React frontend with shadcn/ui components and an Express.js backend with web scraping capabilities, designed to help users find verified deals, genuine discounts, and compare prices across platforms.
 
 ## User Preferences
 

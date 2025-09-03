@@ -16,8 +16,8 @@ export default function Header() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <i className="fas fa-link text-primary text-2xl"></i>
-              <h1 className="text-2xl font-bold text-primary">AffiliateHub</h1>
+              <i className="fas fa-tag text-primary text-2xl"></i>
+              <h1 className="text-2xl font-bold text-primary">DealPro</h1>
             </div>
             <nav className="hidden md:flex space-x-6">
               <button 
