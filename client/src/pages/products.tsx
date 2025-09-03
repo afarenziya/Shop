@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ProductCard from "@/components/ProductCard";
 import Footer from "@/components/Footer";
+import ScrollToTop from "@/components/ScrollToTop";
+import SocialButtons from "@/components/SocialButtons";
 import type { Product } from "@shared/schema";
 
 export default function Products() {
@@ -55,12 +57,17 @@ export default function Products() {
       {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/80">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <i className="fas fa-shopping-cart text-primary text-2xl"></i>
-              <h1 className="text-2xl font-bold text-primary">AffiliateHub</h1>
+          <div className="flex items-center justify-center relative">
+            {/* Left side - Logo */}
+            <div className="absolute left-0">
+              <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity" data-testid="logo-link">
+                <i className="fas fa-shopping-cart text-primary text-2xl"></i>
+                <h1 className="text-2xl font-bold text-primary">AffiliateHub</h1>
+              </Link>
             </div>
-            <div className="flex items-center space-x-4">
+            
+            {/* Center - Navigation Menu */}
+            <div className="flex items-center space-x-6">
               <Link to="/home">
                 <Button variant="ghost" data-testid="nav-home">
                   <Home className="h-4 w-4 mr-2" />
@@ -203,6 +210,8 @@ export default function Products() {
       </div>
       
       <Footer />
+      <ScrollToTop />
+      <SocialButtons />
     </div>
   );
 }

@@ -2,6 +2,8 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import FeaturesSection from "@/components/FeaturesSection";
 import Footer from "@/components/Footer";
+import ScrollToTop from "@/components/ScrollToTop";
+import SocialButtons from "@/components/SocialButtons";
 
 export default function Home() {
   return (
@@ -9,12 +11,17 @@ export default function Home() {
       {/* Header */}
       <header className="bg-card border-b border-border">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <i className="fas fa-link text-primary text-2xl"></i>
-              <h1 className="text-2xl font-bold text-primary">AffiliateHub</h1>
+          <div className="flex items-center justify-center relative">
+            {/* Left side - Logo */}
+            <div className="absolute left-0">
+              <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity" data-testid="logo-link">
+                <i className="fas fa-shopping-cart text-primary text-2xl"></i>
+                <h1 className="text-2xl font-bold text-primary">AffiliateHub</h1>
+              </Link>
             </div>
-            <div className="flex items-center space-x-4">
+            
+            {/* Center - Navigation Menu */}
+            <div className="flex items-center space-x-6">
               <Link to="/">
                 <Button variant="ghost" data-testid="nav-browse">
                   Browse Products
@@ -84,6 +91,8 @@ export default function Home() {
 
       <FeaturesSection />
       <Footer />
+      <ScrollToTop />
+      <SocialButtons />
     </div>
   );
 }

@@ -8,10 +8,10 @@ export default function Footer() {
   ];
   const supportLinks = ["Contact Us", "Privacy Policy", "Terms of Service", "Help & Support"];
   const socialLinks = [
-    { icon: "fab fa-twitter", href: "#" },
-    { icon: "fab fa-facebook", href: "#" },
-    { icon: "fab fa-instagram", href: "#" },
-    { icon: "fab fa-linkedin", href: "#" }
+    { icon: "fab fa-youtube", href: "https://youtube.com/@ajayfarenziya", name: "YouTube" },
+    { icon: "fab fa-instagram", href: "https://instagram.com/ajayfarenziya", name: "Instagram" },
+    { icon: "fab fa-facebook", href: "https://facebook.com/ajayfarenziya", name: "Facebook" },
+    { icon: "fab fa-whatsapp", href: "https://wa.me/+919999999999?text=Hello! I'm interested in AffiliateHub platform.", name: "WhatsApp" }
   ];
 
   return (
@@ -32,8 +32,11 @@ export default function Footer() {
                 <a 
                   key={index}
                   href={social.href} 
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-background/60 hover:text-primary transition-colors"
-                  data-testid={`link-social-${index}`}
+                  data-testid={`link-social-${social.name.toLowerCase()}`}
+                  title={social.name}
                 >
                   <i className={`${social.icon} text-xl`}></i>
                 </a>

@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { addProductUrlSchema, type AddProductUrl } from "@shared/schema";
 import Footer from "@/components/Footer";
+import ScrollToTop from "@/components/ScrollToTop";
+import SocialButtons from "@/components/SocialButtons";
 
 export default function AddProduct() {
   const { toast } = useToast();
@@ -58,20 +60,27 @@ export default function AddProduct() {
       {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/80">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-center relative">
+            {/* Left side - Logo */}
+            <div className="absolute left-0">
+              <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity" data-testid="logo-link">
+                <i className="fas fa-shopping-cart text-primary text-2xl"></i>
+                <h1 className="text-2xl font-bold text-primary">AffiliateHub</h1>
+              </Link>
+            </div>
+            
+            {/* Center - Navigation Menu */}
+            <div className="flex items-center space-x-6">
               <Link to="/">
                 <Button variant="ghost" size="sm" data-testid="button-back">
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Products
+                  Browse Products
                 </Button>
               </Link>
               <div className="flex items-center space-x-2">
                 <i className="fas fa-plus text-primary text-xl"></i>
-                <h1 className="text-xl font-bold text-primary">Add Product</h1>
+                <span className="text-xl font-bold text-primary">Add Product</span>
               </div>
-            </div>
-            <div className="flex items-center space-x-4">
               <Link to="/home">
                 <Button variant="ghost" data-testid="nav-home">
                   <Home className="h-4 w-4 mr-2" />
@@ -189,6 +198,8 @@ export default function AddProduct() {
       </div>
       
       <Footer />
+      <ScrollToTop />
+      <SocialButtons />
     </div>
   );
 }
