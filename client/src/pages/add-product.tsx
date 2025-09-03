@@ -60,9 +60,9 @@ export default function AddProduct() {
       {/* Header */}
       <header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-card/80">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-center relative">
+          <div className="flex items-center justify-between">
             {/* Left side - Logo */}
-            <div className="absolute left-0">
+            <div>
               <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity" data-testid="logo-link">
                 <i className="fas fa-shopping-cart text-primary text-2xl"></i>
                 <h1 className="text-2xl font-bold text-primary">AffiliateHub</h1>
@@ -88,6 +88,9 @@ export default function AddProduct() {
                 </Button>
               </Link>
             </div>
+            
+            {/* Right side - Empty for balance */}
+            <div className="w-[120px]"></div>
           </div>
         </div>
       </header>

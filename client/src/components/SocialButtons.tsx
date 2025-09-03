@@ -31,13 +31,14 @@ export default function SocialButtons() {
   ];
 
   return (
-    <div className="fixed left-4 bottom-4 z-50 flex flex-col space-y-2">
+    <div className="fixed right-4 bottom-4 z-50 flex flex-col space-y-2">
       {/* WhatsApp Toggle Button */}
       <Button
         onClick={openWhatsApp}
         className="bg-green-600 text-white hover:bg-green-700 rounded-full p-3 shadow-lg"
         size="sm"
         data-testid="whatsapp-button"
+        title="Contact on WhatsApp"
       >
         <i className="fab fa-whatsapp text-xl"></i>
       </Button>
@@ -53,7 +54,7 @@ export default function SocialButtons() {
             size="sm"
             data-testid={`social-${social.name.toLowerCase()}`}
           >
-            <i className={`${social.icon} ${social.color} text-lg`}></i>
+            <i className={`${social.icon} ${social.color} text-lg`} title={social.name}></i>
           </Button>
         ))}
       </div>

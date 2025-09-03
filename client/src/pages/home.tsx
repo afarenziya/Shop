@@ -11,9 +11,9 @@ export default function Home() {
       {/* Header */}
       <header className="bg-card border-b border-border">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-center relative">
+          <div className="flex items-center justify-between">
             {/* Left side - Logo */}
-            <div className="absolute left-0">
+            <div>
               <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity" data-testid="logo-link">
                 <i className="fas fa-shopping-cart text-primary text-2xl"></i>
                 <h1 className="text-2xl font-bold text-primary">AffiliateHub</h1>
@@ -27,6 +27,10 @@ export default function Home() {
                   Browse Products
                 </Button>
               </Link>
+            </div>
+            
+            {/* Right side - Add Product */}
+            <div>
               <Link to="/add-product">
                 <Button className="bg-primary text-primary-foreground hover:bg-primary/90" data-testid="nav-add-product">
                   <i className="fas fa-plus mr-2"></i>Add Product
