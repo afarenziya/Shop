@@ -78,7 +78,7 @@ export default function Products() {
             
             {/* Right side - Contact */}
             <div>
-              <Button variant="outline" onClick={() => window.open('mailto:ajaypynetech@gmail.com', '_blank')} data-testid="nav-contact">
+              <Button variant="outline" onClick={() => window.open('mailto:afarenziya@gmail.com', '_blank')} data-testid="nav-contact">
                 <i className="fas fa-envelope mr-2"></i>Contact
               </Button>
             </div>
@@ -194,7 +194,7 @@ export default function Products() {
             {products.length === 0 && (
               <Button 
                 variant="outline" 
-                onClick={() => window.open('mailto:ajaypynetech@gmail.com?subject=Product%20Suggestion', '_blank')}
+                onClick={() => window.open('mailto:afarenziya@gmail.com?subject=Product%20Suggestion', '_blank')}
                 data-testid="button-suggest-product"
               >
                 <i className="fas fa-lightbulb mr-2"></i>Suggest Products
