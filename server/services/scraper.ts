@@ -104,8 +104,8 @@ export class ProductScraper {
                              '';
 
     // Clean price values - handle both INR and $ formats
-    const salePrice = salePriceText.replace(/[^\d.,]/g, '').replace(/,/g, '');
-    const originalPrice = originalPriceText.replace(/[^\d.,]/g, '').replace(/,/g, '');
+    const salePrice = this.cleanPrice(salePriceText);
+    const originalPrice = this.cleanPrice(originalPriceText);
 
     // Calculate discount
     let discount = 0;
@@ -329,8 +329,8 @@ export class ProductScraper {
     }
 
     // Clean price values - handle both INR format with commas
-    const salePrice = salePriceText.replace(/[^\d.,]/g, '').replace(/,/g, '');
-    const originalPrice = originalPriceText.replace(/[^\d.,]/g, '').replace(/,/g, '');
+    const salePrice = this.cleanPrice(salePriceText);
+    const originalPrice = this.cleanPrice(originalPriceText);
 
     // Multiple selectors for discount percentage
     const discountText = $('._3Ay6Sb._31Dcoz').text() ||
@@ -418,5 +418,27 @@ export class ProductScraper {
     }
 
     return 'General';
+  }
+
+  private static cleanPrice(priceText: string): string | undefined {
+    if (!priceText) return undefined;
+    
+    // Extract the first valid price pattern from the text
+    // Matches patterns like: 1,234.56, 1234.56, 1,234, 1234
+    const priceMatch = priceText.match(/(\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\d+(?:\.\d{2})?)/);
+    
+    if (!priceMatch) return undefined;
+    
+    // Remove commas and validate it's a reasonable price
+    const cleanedPrice = priceMatch[1].replace(/,/g, '');
+    const numericPrice = parseFloat(cleanedPrice);
+    
+    // Basic validation: price should be between 0.01 and 999,999.99
+    if (isNaN(numericPrice) || numericPrice < 0.01 || numericPrice > 999999.99) {
+      return undefined;
+    }
+    
+    // Return as string with max 2 decimal places
+    return numericPrice.toFixed(2);
   }
 }
