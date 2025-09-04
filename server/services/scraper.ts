@@ -87,21 +87,41 @@ export class ProductScraper {
                     $('img[id*="image"]').first().attr('src') ||
                     '';
 
-    // Multiple selectors for current/sale price
-    const salePriceText = $('.a-price.a-text-price.a-size-medium.apexPriceToPay .a-offscreen').text() ||
-                         $('.a-price-current .a-offscreen').text() ||
-                         $('.a-price.a-offscreen').first().text() ||
-                         $('.a-price-whole').text() ||
-                         $('[data-automation-id="price"]').text() ||
-                         $('.a-text-price .a-offscreen').text() ||
-                         '';
+    // Multiple selectors for current/sale price - get first element only
+    let salePriceText = '';
+    const salePriceSelectors = [
+      '.a-price.a-text-price.a-size-medium.apexPriceToPay .a-offscreen',
+      '.a-price-current .a-offscreen',
+      '.a-price.a-offscreen',
+      '.a-price-whole',
+      '[data-automation-id="price"]',
+      '.a-text-price .a-offscreen'
+    ];
+    
+    for (const selector of salePriceSelectors) {
+      const priceEl = $(selector).first();
+      if (priceEl.length && priceEl.text().trim()) {
+        salePriceText = priceEl.text().trim();
+        break;
+      }
+    }
 
-    // Multiple selectors for original price
-    const originalPriceText = $('.a-price.a-text-strike .a-offscreen').text() ||
-                             $('.a-price-was .a-offscreen').text() ||
-                             $('.a-text-strike .a-offscreen').text() ||
-                             $('[data-automation-id="was-price"]').text() ||
-                             '';
+    // Multiple selectors for original price - get first element only
+    let originalPriceText = '';
+    const originalPriceSelectors = [
+      '.a-price.a-text-strike .a-offscreen',
+      '.a-price-was .a-offscreen', 
+      '.a-text-strike .a-offscreen',
+      '[data-automation-id="was-price"]'
+    ];
+    
+    for (const selector of originalPriceSelectors) {
+      const priceEl = $(selector).first();
+      if (priceEl.length && priceEl.text().trim()) {
+        originalPriceText = priceEl.text().trim();
+        break;
+      }
+    }
 
     // Clean price values - handle both INR and $ formats
     const salePrice = this.cleanPrice(salePriceText);
@@ -310,21 +330,27 @@ export class ProductScraper {
       '.line-through' // Generic class
     ];
     
-    // Try to find sale price
+    // Try to find sale price - get first element only
     for (const selector of salePriceSelectors) {
-      const price = $(selector).text().trim();
-      if (price && price.match(/₹|Rs|\d/)) {
-        salePriceText = price;
-        break;
+      const priceEl = $(selector).first();
+      if (priceEl.length) {
+        const price = priceEl.text().trim();
+        if (price && price.match(/₹|Rs|\d/)) {
+          salePriceText = price;
+          break;
+        }
       }
     }
     
-    // Try to find original price
+    // Try to find original price - get first element only
     for (const selector of originalPriceSelectors) {
-      const price = $(selector).text().trim();
-      if (price && price.match(/₹|Rs|\d/) && price !== salePriceText) {
-        originalPriceText = price;
-        break;
+      const priceEl = $(selector).first();
+      if (priceEl.length) {
+        const price = priceEl.text().trim();
+        if (price && price.match(/₹|Rs|\d/) && price !== salePriceText) {
+          originalPriceText = price;
+          break;
+        }
       }
     }
 
@@ -423,22 +449,32 @@ export class ProductScraper {
   private static cleanPrice(priceText: string): string | undefined {
     if (!priceText) return undefined;
     
+    console.log(`[SCRAPER] Raw price text: "${priceText}"`);
+    
     // Extract the first valid price pattern from the text
     // Matches patterns like: 1,234.56, 1234.56, 1,234, 1234
     const priceMatch = priceText.match(/(\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\d+(?:\.\d{2})?)/);
     
-    if (!priceMatch) return undefined;
+    if (!priceMatch) {
+      console.log('[SCRAPER] No valid price pattern found');
+      return undefined;
+    }
     
     // Remove commas and validate it's a reasonable price
     const cleanedPrice = priceMatch[1].replace(/,/g, '');
     const numericPrice = parseFloat(cleanedPrice);
     
+    console.log(`[SCRAPER] Cleaned price: ${cleanedPrice}, numeric: ${numericPrice}`);
+    
     // Basic validation: price should be between 0.01 and 999,999.99
     if (isNaN(numericPrice) || numericPrice < 0.01 || numericPrice > 999999.99) {
+      console.log('[SCRAPER] Price validation failed');
       return undefined;
     }
     
     // Return as string with max 2 decimal places
-    return numericPrice.toFixed(2);
+    const finalPrice = numericPrice.toFixed(2);
+    console.log(`[SCRAPER] Final price: ${finalPrice}`);
+    return finalPrice;
   }
 }
