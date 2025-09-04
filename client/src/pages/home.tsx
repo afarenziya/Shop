@@ -29,13 +29,11 @@ export default function Home() {
               </Link>
             </div>
             
-            {/* Right side - Add Product */}
+            {/* Right side - Contact */}
             <div>
-              <Link to="/add-product">
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90" data-testid="nav-add-product">
-                  <i className="fas fa-plus mr-2"></i>Add Product
-                </Button>
-              </Link>
+              <Button variant="outline" onClick={() => window.open('mailto:ajaypynetech@gmail.com', '_blank')} data-testid="nav-contact">
+                <i className="fas fa-envelope mr-2"></i>Contact
+              </Button>
             </div>
           </div>
         </div>
@@ -62,16 +60,15 @@ export default function Home() {
                   <i className="fas fa-shopping-cart mr-2"></i>Browse Products
                 </Button>
               </Link>
-              <Link to="/add-product">
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="border border-border bg-card text-card-foreground hover:bg-secondary text-lg px-8 py-4"
-                  data-testid="button-add-product-hero"
-                >
-                  <i className="fas fa-plus mr-2"></i>Add Product
-                </Button>
-              </Link>
+              <Button 
+                variant="outline" 
+                size="lg"
+                onClick={() => window.open('mailto:ajaypynetech@gmail.com?subject=DealPro%20Partnership', '_blank')}
+                className="border border-border bg-card text-card-foreground hover:bg-secondary text-lg px-8 py-4"
+                data-testid="button-contact-hero"
+              >
+                <i className="fas fa-handshake mr-2"></i>Partner With Us
+              </Button>
             </div>
             
             {/* Statistics */}

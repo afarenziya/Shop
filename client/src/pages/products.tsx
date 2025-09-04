@@ -61,8 +61,8 @@ export default function Products() {
             {/* Left side - Logo */}
             <div>
               <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity" data-testid="logo-link">
-                <i className="fas fa-shopping-cart text-primary text-2xl"></i>
-                <h1 className="text-2xl font-bold text-primary">AffiliateHub</h1>
+                <i className="fas fa-tag text-primary text-2xl"></i>
+                <h1 className="text-2xl font-bold text-primary">DealPro</h1>
               </Link>
             </div>
             
@@ -76,14 +76,11 @@ export default function Products() {
               </Link>
             </div>
             
-            {/* Right side - Add Product */}
+            {/* Right side - Contact */}
             <div>
-              <Link to="/add-product">
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90" data-testid="button-add-product">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Product
-                </Button>
-              </Link>
+              <Button variant="outline" onClick={() => window.open('mailto:ajaypynetech@gmail.com', '_blank')} data-testid="nav-contact">
+                <i className="fas fa-envelope mr-2"></i>Contact
+              </Button>
             </div>
           </div>
         </div>
@@ -190,16 +187,19 @@ export default function Products() {
             <h4 className="text-xl font-semibold mb-2">No Products Found</h4>
             <p className="text-muted-foreground mb-6">
               {products.length === 0 
-                ? "No products have been added yet. Be the first to add some great deals!"
+                ? "We're adding amazing products daily. Check back soon for the best deals!"
                 : "No products match your current filters. Try adjusting your search criteria."
               }
             </p>
-            <Link to="/add-product">
-              <Button data-testid="button-add-first-product">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Your First Product
+            {products.length === 0 && (
+              <Button 
+                variant="outline" 
+                onClick={() => window.open('mailto:ajaypynetech@gmail.com?subject=Product%20Suggestion', '_blank')}
+                data-testid="button-suggest-product"
+              >
+                <i className="fas fa-lightbulb mr-2"></i>Suggest Products
               </Button>
-            </Link>
+            )}
           </div>
         )}
 
