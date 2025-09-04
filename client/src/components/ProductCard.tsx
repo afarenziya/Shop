@@ -69,34 +69,40 @@ export default function ProductCard({ product }: ProductCardProps) {
   const config = platformConfig[product.platform as keyof typeof platformConfig];
 
   return (
-    <div className="product-card bg-card border border-border rounded-xl overflow-hidden shadow-sm" data-testid={`card-product-${product.id}`}>
-      <div className="relative">
+    <div className="product-card bg-card border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]" data-testid={`card-product-${product.id}`}>
+      <div className="relative bg-white">
         {product.imageUrl ? (
-          <img 
-            src={product.imageUrl} 
-            alt={product.title} 
-            className="w-full h-48 object-cover"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = `https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300`;
-            }}
-          />
+          <div className="aspect-square bg-white p-4 flex items-center justify-center overflow-hidden group">
+            <img 
+              src={product.imageUrl} 
+              alt={product.title} 
+              className="max-w-full max-h-full object-contain transition-all duration-300 group-hover:scale-105"
+              style={{ width: 'auto', height: 'auto', maxWidth: '100%', maxHeight: '100%' }}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = `https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=300`;
+              }}
+            />
+          </div>
         ) : (
-          <div className="w-full h-48 bg-muted flex items-center justify-center">
-            <i className="fas fa-image text-muted-foreground text-3xl"></i>
+          <div className="aspect-square bg-white flex items-center justify-center">
+            <div className="text-center">
+              <i className="fas fa-image text-gray-300 text-4xl mb-2"></i>
+              <p className="text-xs text-gray-500">No Image</p>
+            </div>
           </div>
         )}
         
         {product.discount && product.discount > 0 && (
-          <div className="absolute top-3 right-3">
-            <span className="discount-badge text-white px-2 py-1 rounded-md text-xs font-bold" data-testid={`text-discount-${product.id}`}>
+          <div className="absolute top-2 right-2 z-10">
+            <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg" data-testid={`text-discount-${product.id}`}>
               {product.discount}% OFF
             </span>
           </div>
         )}
         
-        <div className="absolute top-3 left-3">
-          <span className={`${config.color} px-2 py-1 rounded-md text-xs font-bold`} data-testid={`text-platform-${product.id}`}>
+        <div className="absolute top-2 left-2 z-10">
+          <span className={`${config.color} px-2 py-1 rounded-full text-xs font-bold shadow-md`} data-testid={`text-platform-${product.id}`}>
             {config.label}
           </span>
         </div>

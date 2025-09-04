@@ -108,23 +108,19 @@ export class ProductScraper {
       '.a-price.a-text-normal .a-offscreen'
     ];
     
-    console.log('[SCRAPER] Looking for Amazon sale price...');
     for (const selector of salePriceSelectors) {
       const priceEl = $(selector).first();
       if (priceEl.length && priceEl.text().trim()) {
         salePriceText = priceEl.text().trim();
-        console.log(`[SCRAPER] Found sale price with selector "${selector}": "${salePriceText}"`);
         break;
       }
     }
     
     if (!salePriceText) {
-      console.log('[SCRAPER] No sale price found, trying all .a-price elements...');
       $('.a-price').each((i, el) => {
         const text = $(el).text().trim();
         if (text && text.includes('₹') || text.includes('$')) {
           salePriceText = text;
-          console.log(`[SCRAPER] Found fallback price: "${salePriceText}"`);
           return false; // break
         }
       });
@@ -141,12 +137,10 @@ export class ProductScraper {
       '.a-price-old .a-offscreen'
     ];
     
-    console.log('[SCRAPER] Looking for Amazon original price...');
     for (const selector of originalPriceSelectors) {
       const priceEl = $(selector).first();
       if (priceEl.length && priceEl.text().trim()) {
         originalPriceText = priceEl.text().trim();
-        console.log(`[SCRAPER] Found original price with selector "${selector}": "${originalPriceText}"`);
         break;
       }
     }
@@ -477,11 +471,8 @@ export class ProductScraper {
   private static cleanPrice(priceText: string): string | undefined {
     if (!priceText) return undefined;
     
-    console.log(`[SCRAPER] Raw price text: "${priceText}"`);
-    
     // Remove all non-numeric characters except dots and commas first
     let cleaned = priceText.replace(/[^\d.,]/g, '');
-    console.log(`[SCRAPER] After removing non-numeric: "${cleaned}"`);
     
     // Handle different price formats
     let numericPrice = 0;
@@ -491,24 +482,17 @@ export class ProductScraper {
       // For Indian numbering, remove all commas
       const withoutCommas = cleaned.replace(/,/g, '');
       numericPrice = parseFloat(withoutCommas);
-      console.log(`[SCRAPER] Indian format detected, without commas: ${withoutCommas}`);
     } else {
       // Simple format: 134567.89 or 134567
       numericPrice = parseFloat(cleaned);
-      console.log(`[SCRAPER] Simple format: ${cleaned}`);
     }
-    
-    console.log(`[SCRAPER] Parsed numeric price: ${numericPrice}`);
     
     // Basic validation: price should be between 1 and 50,00,000 (50 lakh)
     if (isNaN(numericPrice) || numericPrice < 1 || numericPrice > 5000000) {
-      console.log(`[SCRAPER] Price validation failed: ${numericPrice}`);
       return undefined;
     }
     
     // Return as string with max 2 decimal places
-    const finalPrice = numericPrice.toFixed(2);
-    console.log(`[SCRAPER] Final price: ${finalPrice}`);
-    return finalPrice;
+    return numericPrice.toFixed(2);
   }
 }
