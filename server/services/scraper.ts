@@ -87,38 +87,66 @@ export class ProductScraper {
                     $('img[id*="image"]').first().attr('src') ||
                     '';
 
-    // Multiple selectors for current/sale price - get first element only
+    // Enhanced Amazon price selectors - 2024/2025 updated
     let salePriceText = '';
     const salePriceSelectors = [
+      // Latest Amazon price selectors
       '.a-price.a-text-price.a-size-medium.apexPriceToPay .a-offscreen',
-      '.a-price-current .a-offscreen',
-      '.a-price.a-offscreen',
+      '.a-price-current .a-offscreen', 
+      '.a-price .a-offscreen',
       '.a-price-whole',
+      'span.a-price-whole',
+      '.a-offscreen',
       '[data-automation-id="price"]',
-      '.a-text-price .a-offscreen'
+      '.a-text-price .a-offscreen',
+      // Additional fallback selectors
+      '.a-price-range .a-offscreen',
+      '#priceblock_dealprice',
+      '#priceblock_ourprice', 
+      '#price_inside_buybox',
+      '.a-size-medium.a-color-price',
+      '.a-price.a-text-normal .a-offscreen'
     ];
     
+    console.log('[SCRAPER] Looking for Amazon sale price...');
     for (const selector of salePriceSelectors) {
       const priceEl = $(selector).first();
       if (priceEl.length && priceEl.text().trim()) {
         salePriceText = priceEl.text().trim();
+        console.log(`[SCRAPER] Found sale price with selector "${selector}": "${salePriceText}"`);
         break;
       }
     }
+    
+    if (!salePriceText) {
+      console.log('[SCRAPER] No sale price found, trying all .a-price elements...');
+      $('.a-price').each((i, el) => {
+        const text = $(el).text().trim();
+        if (text && text.includes('₹') || text.includes('$')) {
+          salePriceText = text;
+          console.log(`[SCRAPER] Found fallback price: "${salePriceText}"`);
+          return false; // break
+        }
+      });
+    }
 
-    // Multiple selectors for original price - get first element only
+    // Enhanced Amazon original price selectors
     let originalPriceText = '';
     const originalPriceSelectors = [
       '.a-price.a-text-strike .a-offscreen',
       '.a-price-was .a-offscreen', 
       '.a-text-strike .a-offscreen',
-      '[data-automation-id="was-price"]'
+      '[data-automation-id="was-price"]',
+      '#price .a-text-strike .a-offscreen',
+      '.a-price-old .a-offscreen'
     ];
     
+    console.log('[SCRAPER] Looking for Amazon original price...');
     for (const selector of originalPriceSelectors) {
       const priceEl = $(selector).first();
       if (priceEl.length && priceEl.text().trim()) {
         originalPriceText = priceEl.text().trim();
+        console.log(`[SCRAPER] Found original price with selector "${selector}": "${originalPriceText}"`);
         break;
       }
     }
@@ -451,23 +479,29 @@ export class ProductScraper {
     
     console.log(`[SCRAPER] Raw price text: "${priceText}"`);
     
-    // Extract the first valid price pattern from the text
-    // Matches patterns like: 1,34,567.89, 12,345.67, 1234.56, 1234
-    const priceMatch = priceText.match(/(\d{1,2}(?:,\d{2})*(?:,\d{3})*(?:\.\d{2})?|\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\d+(?:\.\d{2})?)/);
+    // Remove all non-numeric characters except dots and commas first
+    let cleaned = priceText.replace(/[^\d.,]/g, '');
+    console.log(`[SCRAPER] After removing non-numeric: "${cleaned}"`);
     
-    if (!priceMatch) {
-      console.log('[SCRAPER] No valid price pattern found');
-      return undefined;
+    // Handle different price formats
+    let numericPrice = 0;
+    
+    // Indian format: 1,34,567.89 or 1,34,567
+    if (cleaned.includes(',')) {
+      // For Indian numbering, remove all commas
+      const withoutCommas = cleaned.replace(/,/g, '');
+      numericPrice = parseFloat(withoutCommas);
+      console.log(`[SCRAPER] Indian format detected, without commas: ${withoutCommas}`);
+    } else {
+      // Simple format: 134567.89 or 134567
+      numericPrice = parseFloat(cleaned);
+      console.log(`[SCRAPER] Simple format: ${cleaned}`);
     }
     
-    // Remove commas and validate it's a reasonable price
-    const cleanedPrice = priceMatch[1].replace(/,/g, '');
-    const numericPrice = parseFloat(cleanedPrice);
+    console.log(`[SCRAPER] Parsed numeric price: ${numericPrice}`);
     
-    console.log(`[SCRAPER] Cleaned price: ${cleanedPrice}, numeric: ${numericPrice}`);
-    
-    // Basic validation: price should be between 0.01 and 50,00,000 (50 lakh)
-    if (isNaN(numericPrice) || numericPrice < 0.01 || numericPrice > 5000000) {
+    // Basic validation: price should be between 1 and 50,00,000 (50 lakh)
+    if (isNaN(numericPrice) || numericPrice < 1 || numericPrice > 5000000) {
       console.log(`[SCRAPER] Price validation failed: ${numericPrice}`);
       return undefined;
     }
