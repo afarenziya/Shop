@@ -452,8 +452,8 @@ export class ProductScraper {
     console.log(`[SCRAPER] Raw price text: "${priceText}"`);
     
     // Extract the first valid price pattern from the text
-    // Matches patterns like: 1,234.56, 1234.56, 1,234, 1234
-    const priceMatch = priceText.match(/(\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\d+(?:\.\d{2})?)/);
+    // Matches patterns like: 1,34,567.89, 12,345.67, 1234.56, 1234
+    const priceMatch = priceText.match(/(\d{1,2}(?:,\d{2})*(?:,\d{3})*(?:\.\d{2})?|\d{1,3}(?:,\d{3})*(?:\.\d{2})?|\d+(?:\.\d{2})?)/);
     
     if (!priceMatch) {
       console.log('[SCRAPER] No valid price pattern found');
@@ -466,9 +466,9 @@ export class ProductScraper {
     
     console.log(`[SCRAPER] Cleaned price: ${cleanedPrice}, numeric: ${numericPrice}`);
     
-    // Basic validation: price should be between 0.01 and 999,999.99
-    if (isNaN(numericPrice) || numericPrice < 0.01 || numericPrice > 999999.99) {
-      console.log('[SCRAPER] Price validation failed');
+    // Basic validation: price should be between 0.01 and 50,00,000 (50 lakh)
+    if (isNaN(numericPrice) || numericPrice < 0.01 || numericPrice > 5000000) {
+      console.log(`[SCRAPER] Price validation failed: ${numericPrice}`);
       return undefined;
     }
     
