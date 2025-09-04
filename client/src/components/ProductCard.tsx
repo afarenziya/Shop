@@ -1,7 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import type { Product } from "@shared/schema";
 
 interface ProductCardProps {
@@ -9,32 +6,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const deleteProductMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await apiRequest("DELETE", `/api/products/${id}`);
-    },
-    onSuccess: () => {
-      toast({
-        title: "Product Removed",
-        description: "The product has been successfully removed.",
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/products"] });
-    },
-    onError: () => {
-      toast({
-        title: "Failed to Remove Product",
-        description: "There was an error removing the product. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleRemove = () => {
-    deleteProductMutation.mutate(product.id);
-  };
 
   const handleViewProduct = () => {
     window.open(product.productUrl, '_blank', 'noopener,noreferrer');
@@ -143,21 +114,10 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="flex gap-2">
           <Button
             onClick={handleViewProduct}
-            className={`flex-1 ${config.buttonColor} text-sm font-medium transition-colors`}
+            className={`w-full ${config.buttonColor} text-sm font-medium transition-colors`}
             data-testid={`button-view-${product.id}`}
           >
-            <i className={`${config.icon} mr-1`}></i>View on {config.label}
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleRemove}
-            disabled={deleteProductMutation.isPending}
-            className="hover:bg-destructive hover:text-destructive-foreground"
-            data-testid={`button-remove-${product.id}`}
-          >
-            <i className="fas fa-trash"></i>
+            <i className={`${config.icon} mr-2`}></i>View on {config.label}
           </Button>
         </div>
       </div>
